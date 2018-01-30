@@ -9,43 +9,55 @@ class MazeSolver
   end
 
   def solve(begX, begY, endX, endY)
+    return [],[] if(validate_two_end(translate(begX),translate(begY), translate(endX),translate(endY)) == false)
     start = [begX,begY]
+    start_tran = [translate(begX),translate(begY)]
     goal = [endX, endY]
     que = Queue.new
-    que.push([[start],start])
+    que.push([[start],[start_tran],start])
     visited = Set.new
     while(!que.empty?)
-      path,cur = que.deq
-      if(cur == goal)
-        puts "#{path}"
-        return path
-      end
-      if visited.include?(cur)
-        next
-      end
+      path,tran,cur = que.deq
+      return path,tran if(cur == goal)
+      next if visited.include?(cur)
       visited.add(cur)
-      if(plane[translate(cur[1]) + 1][translate(cur[0])] == 0)
-        que.enq([Array.new(path).push([cur[0],cur[1]+1]),[cur[0],cur[1]+1]])
-      end
-      if(plane[translate(cur[1]) - 1][translate(cur[0])] == 0)
-        que.enq([Array.new(path).push([cur[0],cur[1]-1]),[cur[0],cur[1]-1]])
-      end
-      if(plane[translate(cur[1])][translate(cur[0]) + 1] == 0)
-        que.enq([Array.new(path).push([cur[0] + 1,cur[1]]),[cur[0] + 1,cur[1]]])
-      end
-      if(plane[translate(cur[1])][translate(cur[0]) - 1] == 0)
-        que.enq([Array.new(path).push([cur[0] - 1,cur[1]]),[cur[0] - 1,cur[1]]])
-      end
+      breadth_first_search(plane,que,cur,tran,path)
     end
-    puts "There is no way"
-    return []
+    return [],[]
+  end
+
+  def breadth_first_search(plane,que,cur,tran,path)
+    if(plane[translate(cur[1]) + 1][translate(cur[0])] == 0)
+      new_tran = Array.new(tran).push([translate(cur[1]) + 1,translate(cur[0])]).push([translate(cur[1]+1),translate(cur[0])])
+      que.enq([Array.new(path).push([cur[0],cur[1]+1]),new_tran,[cur[0],cur[1]+1]])
+    end
+    if(plane[translate(cur[1]) - 1][translate(cur[0])] == 0)
+      new_tran = Array.new(tran).push([translate(cur[1]) - 1,translate(cur[0])]).push([translate(cur[1]-1),translate(cur[0])])
+      que.enq([Array.new(path).push([cur[0],cur[1]-1]),new_tran,[cur[0],cur[1]-1]])
+    end
+    if(plane[translate(cur[1])][translate(cur[0]) + 1] == 0)
+      new_tran = Array.new(tran).push([translate(cur[1]),translate(cur[0])+1]).push([translate(cur[1]),translate(cur[0]+1)])
+      que.enq([Array.new(path).push([cur[0] + 1,cur[1]]),new_tran,[cur[0] + 1,cur[1]]])
+    end
+    if(plane[translate(cur[1])][translate(cur[0]) - 1] == 0)
+      new_tran = Array.new(tran).push([translate(cur[1]),translate(cur[0])-1]).push([translate(cur[1]),translate(cur[0]-1)])
+      que.enq([Array.new(path).push([cur[0] - 1,cur[1]]),new_tran,[cur[0] - 1,cur[1]]])
+    end
   end
 
   def trace(begX, begY, endX, endY)
-    solution = solve(begX, begY, endX, endY)
-    #solution.each{|x| puts "#{self.graph.class}"}
-    solution.each{|x| self.graph[translate(x[1])][translate(x[0])] = '@'}
-    puts graph.map { |x| x.join(' ') }
+    path,solution = solve(begX, begY, endX, endY)
+    if(solution.length != 0)
+      solution.each{|x| self.graph[x[0]][x[1]] = '@'}
+      puts graph.map { |x| x.join(' ') }
+    else
+      puts "There are no way from #{[begX,begY]} to #{[endX,endY]}"
+    end
+  end
+
+  def validate_two_end(begX, begY, endX, endY)
+    puts "Outbound input point(s)" if validation(begX, begY) && validation(endX,endY) == false
+    return validation(begX, begY) && validation(endX,endY)
   end
 
   def validation(x, y)

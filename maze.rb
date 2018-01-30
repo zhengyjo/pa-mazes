@@ -1,4 +1,5 @@
 require './maze_solver.rb'
+require './maze_redesign.rb'
 
 class Maze
   attr_accessor :plane,:graph,:valid
@@ -21,9 +22,7 @@ class Maze
         plane[row][col] = arg_arr[i].to_i
       end
       second_validate
-      if(self.valid == true)
-        draw_graph
-      end
+      draw_graph if(self.valid == true)
     end
   end
 
@@ -55,7 +54,7 @@ class Maze
       puts "One of the boundaries is not closed"
       self.valid = false
     end
-    cell_validate
+    cell_validate if(self.valid == true)
   end
 
   def cell_validate
@@ -65,7 +64,7 @@ class Maze
       for j in (1..width).step(2) do
         wall_num = calculate_boundary_sum(i,j)
         if(wall_num == 4 || wall_num == 0)
-          puts "[#{i},#{j}] is a dead cell or empty cell. Please enter another valid string"
+          puts "[#{i},#{j}] is an invalid cell. Please enter another valid string"
           self.valid = false
         end
       end
@@ -78,6 +77,7 @@ class Maze
     self.plane[i+1][j-1..j+1].sum == 3? wall_num += 1: wall_num
     self.plane[i-1..i+1].map{|a| a[j-1]}.sum == 3? wall_num += 1: wall_num
     self.plane[i-1..i+1].map{|a| a[j+1]}.sum == 3? wall_num += 1: wall_num
+    wall_num = 0 if(self.plane[i-1][j-1] == 0 || self.plane[i-1][j+1] == 0||self.plane[i+1][j-1] == 0||self.plane[i+1][j+1] == 0)
     return wall_num
   end
 
@@ -90,28 +90,12 @@ class Maze
     end
   end
 
-  def display
-    puts graph.map { |x| x.join(' ') }
-  end
+  def display; puts graph.map { |x| x.join(' ') } end
 
-  def solve(begX, begY, endX, endY)
-      solver = MazeSolver.new(plane,graph)
-      solver.solve(begX, begY, endX, endY)
-  end
+  def solve(begX, begY, endX, endY); MazeSolver.new(plane,graph).solve(begX, begY, endX, endY) end
 
-  def trace(begX, begY, endX, endY)
-      solver = MazeSolver.new(plane,graph)
-      solver.trace(begX, begY, endX, endY)
-  end
+  def trace(begX, begY, endX, endY); MazeSolver.new(plane,graph).trace(begX, begY, endX, endY) end
+
+  def redesign(); load(MazeRedesign.new(across,down).produce) end
 
 end
-
-#################Testing##############################
-m = Maze.new(4,4)
-m.load("111111111100010001111010101100010101101110101100000101111011101100000101111111111")
-#m.load("101101111")
-#puts m.plane.map { |x| x.join(' ') }
-m.trace(0,0,3,3)
-# n = Array.new((2 * (m.across) + 1),'1')
-# x = m.plane.map{|a| a[0]}
-# puts x
