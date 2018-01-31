@@ -1,7 +1,8 @@
 require "minitest/autorun"
 require 'o_stream_catcher'
 require_relative "maze"
-
+#Zhengyang Zhou
+#Test create maze and load function
 describe Maze do
 
   it "can initialize a maze" do
@@ -28,7 +29,7 @@ describe Maze do
 
   it "can validate whether the input string has proper length" do
     one_by_one = Maze.new(1,1)
-    arg = "1111011111"
+    arg = "1111011111"#The length is ten, which is not correct, as the formula is (2*across+1)*(2*down+1)
     result, stdout, stderr = OStreamCatcher.catch do
       one_by_one.load(arg)
     end
@@ -40,7 +41,7 @@ describe Maze do
 
   it "can validate whether the input string contains valid charater" do
     one_by_one = Maze.new(1,1)
-    arg = "345345345"
+    arg = "345345345"#3,4,5 is not valid character
     result, stdout, stderr = OStreamCatcher.catch do
       one_by_one.load(arg)
     end
@@ -52,7 +53,7 @@ describe Maze do
 
   it "can validate whether the maze is correctly closed" do
     one_by_one = Maze.new(1,1)
-    arg = "011101111"
+    arg = "011101111"#The top line is not closed
     result, stdout, stderr = OStreamCatcher.catch do
       one_by_one.load(arg)
     end
@@ -64,12 +65,12 @@ describe Maze do
 
   it "can validate whether the maze contains dead or empty cell" do
     three_by_one = Maze.new(3,1)
-    arg = "111111110100011111111"
+    arg = "111111110100011111111"#The first cell is dead, as it surrounded by 4 walls.
     result, stdout, stderr = OStreamCatcher.catch do
       three_by_one.load(arg)
     end
     result, stdout2, stderr = OStreamCatcher.catch do
-      puts "[1,1] is an invalid cell. Please enter another valid string"
+      puts "[0,0] is an invalid cell. Please enter another valid string"
     end
     stdout.must_equal(stdout2)
   end

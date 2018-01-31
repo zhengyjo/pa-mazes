@@ -2,7 +2,8 @@ require "minitest/autorun"
 require 'o_stream_catcher'
 require_relative "maze"
 
-#Test all the functions.
+#Zhengyang Zhou
+#Test all display, solve, trace and redesign.
 describe Maze do
 
   before do
@@ -13,6 +14,7 @@ describe Maze do
   end
 
   it "can display the diagram of a maze" do
+    #Generate a correct graph for comparison later
     correct_graph = Array.new((2 * (4) + 1)){Array.new((2 * (4) + 1),"")}
     for i in 0..(@arg_arr.length-1) do
       row = i / (2 * (4) + 1)
@@ -41,7 +43,29 @@ describe Maze do
     path.must_equal(correct_direction)
   end
 
-  it "can trace the reachable points" do
+  it "can trace the reachable points case 1" do
+    #Generate a correct path with @ representing the path
+    correct_graph = Array.new((2 * (4) + 1)){Array.new((2 * (4) + 1),"")}
+    for i in 0..(@arg_arr.length-1) do
+      row = i / (2 * (4) + 1)
+      col = i % (2 * (4) + 1)
+      @arg_arr[i].to_i == 1? correct_graph[row][col] = '*': correct_graph[row][col] = ' '
+    end
+    correct_trans = [[1, 3], [2, 3], [3, 3], [3, 2], [3, 1], [4, 1], [5, 1]]
+    for element in correct_trans do
+      correct_graph[element[0]][element[1]] = '@'
+    end
+    result, stdout, stderr = OStreamCatcher.catch do
+      @four_by_four.trace(1,0,0,2)#Trace it by the maze operation
+    end
+    result, stdout2, stderr = OStreamCatcher.catch do
+      puts correct_graph.map { |x| x.join(' ') }
+    end
+    stdout.must_equal(stdout2)
+  end
+
+  it "can trace the reachable points case 2" do
+    #Generate a correct path with @ representing the path
     correct_graph = Array.new((2 * (4) + 1)){Array.new((2 * (4) + 1),"")}
     for i in 0..(@arg_arr.length-1) do
       row = i / (2 * (4) + 1)
@@ -53,7 +77,7 @@ describe Maze do
       correct_graph[element[0]][element[1]] = '@'
     end
     result, stdout, stderr = OStreamCatcher.catch do
-      @four_by_four.trace(0,0,3,3)
+      @four_by_four.trace(0,0,3,3)#Trace it by the maze operation
     end
     result, stdout2, stderr = OStreamCatcher.catch do
       puts correct_graph.map { |x| x.join(' ') }
@@ -63,7 +87,7 @@ describe Maze do
 
   it "can do the redesign" do
     @four_by_four.redesign
-    @four_by_four.valid.must_equal true
+    @four_by_four.valid.must_equal true #Whether the generated string is valid
     puts "\n"
     @four_by_four.display
   end
